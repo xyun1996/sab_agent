@@ -15,4 +15,11 @@ class Message:
 @dataclass()
 class ChatRequest:
     model: str
-    stream: bool | None
+    messages: list[Message]
+    stream: bool | None = None
+
+    def to_messages_dict(self) -> list[dict]:
+        out: list[dict] = []
+        for msg in self.messages:
+            out.append(msg.to_dict())
+        return out

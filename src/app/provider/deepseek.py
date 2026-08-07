@@ -3,17 +3,22 @@ import os
 import logging
 
 from .error import RateLimitError, ProviderError, ProviderTimeout, ContextLengthError
-from ..models.types import Message
+from ..models.types import ChatRequest
 
 logger = logging.getLogger("provider-deepseek")
 
 
 class DeepSeekProvider():
 
-    async def generate(self, messages: Message) -> str:
+    async def generate(self, req: ChatRequest) -> str:
         try:
-            system_prompt = "You are a helpful assistant."
             api_key = os.environ["DEEPSEEK_API_KEY"]
+            body = {
+                "model": req.model,
+                "messages": req.to_messages_dict(),
+            }
+            if req.stream is not None and req.stream:
+                body["stream"] = True
             async with httpx.AsyncClient() as client:
                 resp = await client.post(
                     "https://api.deepseek.com/chat/completions",
@@ -21,14 +26,7 @@ class DeepSeekProvider():
                         "Authorization": f"Bearer {api_key}",
                         "Content-Type": "application/json",
                     },
-                    json={
-                        "model": "deepseek-v4-flash",
-                        "messages": [
-                            {"role": "system", "content": system_prompt},
-                            messages.to_dict(),
-                        ],
-                        "stream": False,
-                    },
+                    json=body,
                     timeout=30.0
                 )
                 resp.raise_for_status()

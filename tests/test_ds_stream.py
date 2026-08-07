@@ -1,5 +1,5 @@
 import asyncio
-from ds import create_client, stream_chat
+from .ds import create_client, stream_chat
 
 
 def test_stream():

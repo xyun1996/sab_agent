@@ -2,14 +2,19 @@ from dataclasses import dataclass, field
 from typing import Any, Literal
 
 
+class ToolCall:
+    id: str
+    name: str
+    arguments: dict
+    raw_arguments: str
+
+
 @dataclass(frozen=True)
 class Message:
     role: Literal["system", "user", "assistant", "tool"]
     content: str | None
-
-    def to_dict(self) -> dict:
-        d: dict = {"role": self.role, "content": self.content}
-        return d
+    tool_calls: list[ToolCall] | None = None
+    tool_call_id: str | None = None
 
 
 @dataclass()
@@ -17,9 +22,5 @@ class ChatRequest:
     model: str
     messages: list[Message]
     stream: bool | None = None
-
-    def to_messages_dict(self) -> list[dict]:
-        out: list[dict] = []
-        for msg in self.messages:
-            out.append(msg.to_dict())
-        return out
+    tools: list[dict] | None = None
+    tool_choice: str | dict | None = None

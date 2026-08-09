@@ -72,7 +72,7 @@ def test_oai_tool_call_loop():
             assert data["choices"][0]["finish_reason"] == "tool_calls"
             msg = data["choices"][0]["message"]
             assert msg["tool_calls"], "模型应该发起工具调用"
-            # msg["reasoning_content"] = ""
+            print(msg)
 
             messages.append(msg)
             for tc in msg["tool_calls"]:

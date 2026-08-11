@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "pytest debug",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": [
+        "tests/test_oai_tool_call.py::test_oai_tool_call_loop",
+        "-s"
+      ],
+      "console": "integratedTerminal"
+    }
+  ]
+}

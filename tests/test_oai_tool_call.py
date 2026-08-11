@@ -95,6 +95,8 @@ def test_oai_tool_call_loop():
                     Message(role="tool", tool_call_id=tc.id, content=result))
             resp2 = await provider.generate(req)
             print(resp2)
+            messages.append(resp2.choices[0].message)
+
         except ProviderError as e:
             print(e)
         # async with httpx.AsyncClient() as client:

@@ -5,6 +5,10 @@ import logging
 import os
 import asyncio
 
+from app.models.types import ChatRequest, Message
+from app.provider.error import ProviderError
+from app.provider.provider import get_provider
+
 logger = logging.getLogger("sab_agent_tool_call")
 
 load_dotenv()
@@ -65,22 +69,33 @@ def call(tool_call: dict) -> str:
 
 def test_oai_tool_call_loop():
     async def _run():
-        async with httpx.AsyncClient() as client:
-            messages = [
-                {"role": "user", "content": "How's the weather in Shanghai?"}]
-            data = await chat_once(client, messages)
-            assert data["choices"][0]["finish_reason"] == "tool_calls"
-            msg = data["choices"][0]["message"]
-            assert msg["tool_calls"], "模型应该发起工具调用"
-            print(msg)
+        provider = get_provider("deepseek")
+        assert provider
+        messages = [
+            Message(role="user", content="How's the weather in Shanghai?")]
+        req = ChatRequest(model="deepseek-v4-flash",
+                          messages=messages, stream=False, tools=TOOLS)
+        try:
+            data = await provider.generate(req=req)
+            print(data)
+        except ProviderError as e:
+            print(e)
+        # async with httpx.AsyncClient() as client:
+        #     messages = [
+        #         {"role": "user", "content": "How's the weather in Shanghai?"}]
+        #     data = await chat_once(client, messages)
+        #     assert data["choices"][0]["finish_reason"] == "tool_calls"
+        #     msg = data["choices"][0]["message"]
+        #     assert msg["tool_calls"], "模型应该发起工具调用"
+        #     print(msg)
 
-            messages.append(msg)
-            for tc in msg["tool_calls"]:
-                result = call(tc)
-                messages.append(
-                    {"role": "tool", "tool_call_id": tc["id"], "content": result})
-            # logger.info(json.dumps(messages, indent=2))
-            data2 = await chat_once(client, messages)
-            logger.info(json.dumps(data2, indent=2))
+        #     messages.append(msg)
+        #     for tc in msg["tool_calls"]:
+        #         result = call(tc)
+        #         messages.append(
+        #             {"role": "tool", "tool_call_id": tc["id"], "content": result})
+        #     # logger.info(json.dumps(messages, indent=2))
+        #     data2 = await chat_once(client, messages)
+        #     logger.info(json.dumps(data2, indent=2))
 
     asyncio.run(_run())

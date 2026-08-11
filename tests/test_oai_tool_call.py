@@ -5,7 +5,7 @@ import logging
 import os
 import asyncio
 
-from app.models.types import ChatRequest, Message
+from app.models.types import ChatRequest, Message, ToolCall
 from app.provider.error import ProviderError
 from app.provider.provider import get_provider
 
@@ -67,6 +67,12 @@ def call(tool_call: dict) -> str:
     raise ValueError(f"unknown tool: {tool_call['function']['name']}")
 
 
+def call2(tc: ToolCall) -> str:
+    if tc.name == "get_weather":
+        return get_weather(tc.arguments["location"])
+    raise ValueError(f"unknown tool: {tc.name}")
+
+
 def test_oai_tool_call_loop():
     async def _run():
         provider = get_provider("deepseek")
@@ -76,8 +82,19 @@ def test_oai_tool_call_loop():
         req = ChatRequest(model="deepseek-v4-flash",
                           messages=messages, stream=False, tools=TOOLS)
         try:
-            data = await provider.generate(req=req)
-            print(data)
+            response = await provider.generate(req=req)
+            assert response.choices[0].finish_reason == "tool_calls"
+            msg = response.choices[0].message
+            assert msg.tool_calls
+
+            messages.append(msg)
+
+            for tc in msg.tool_calls:
+                result = call2(tc)
+                messages.append(
+                    Message(role="tool", tool_call_id=tc.id, content=result))
+            resp2 = await provider.generate(req)
+            print(resp2)
         except ProviderError as e:
             print(e)
         # async with httpx.AsyncClient() as client:

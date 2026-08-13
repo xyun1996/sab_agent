@@ -10,10 +10,11 @@ class ToolCall:
     raw_arguments: str
 
 
-@dataclass(frozen=True)
+@dataclass()
 class Message:
     role: Literal["system", "user", "assistant", "tool"]
-    content: str | None
+    content: str
+    reasoning: str | None = None
     tool_calls: list[ToolCall] | None = None
     tool_call_id: str | None = None
 
@@ -65,3 +66,16 @@ class ChatResponse:
     choices: list[Choice]
     usage: Usage
     system_fingerprint: str | None
+
+
+@dataclass()
+class StreamEvent:
+    kind: Literal["text", "reasoning", "done", "error"]
+
+    text: str | None = None
+
+    finish_reason: str | None = None
+
+    usage: Usage | None = None
+    message: Message | None = None
+    error: str | None = None

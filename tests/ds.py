@@ -54,7 +54,7 @@ async def stream_chat(client: httpx.AsyncClient, messages: list[dict], tools=Non
                 reasoning = True
 
             if reasoning:
-                print(chunk["delta"]["resasoning_content"])
+                print(chunk["delta"]["reasoning_content"])
                 # logger.info(payload)
 
                 # return resp.json()

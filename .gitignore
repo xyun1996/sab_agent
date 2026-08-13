@@ -1,1 +1,27 @@
-.venv
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# 虚拟环境
+.venv/
+
+# 环境变量与密钥（.env.example 可提交模板）
+.env
+.env.*
+!.env.example
+
+# 测试与覆盖率
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+
+# 日志
+*.log

@@ -1,7 +1,11 @@
 import asyncio
 import json
+from dotenv import load_dotenv
 from app.models.types import ChatRequest, Message, StreamEvent, ToolCall
 from app.provider.provider import get_provider
+
+
+load_dotenv()
 
 
 TOOLS = [
